@@ -1,34 +1,44 @@
-import { createStore } from 'redux';
+import { createStore, applyMiddleware } from 'redux';
+import logger from 'redux-logger'; // npm i redux-logger
 
-// reducer
+// .default to avoid error
+const store = createStore(reducer, applyMiddleware(logger.default));
+
+// reducer - with some inital state
 function reducer(state = { amount: 1 }, action) {
-    if (action.type === 'increment') {
+    if (action.type === 'inc') {
         // NOTE 2 - wrong practice state's copy shoud me made
         // state.amount = state.amount + 1; 
 
         // it should bd immutable like below
         return { amount: state.amount + 1 };
     }
+    else if (action.type === 'dec') {
+        return { amount: state.amount - 1 };
+    }
+    else if (action.type === 'incByAmt') {
+        return { amount: state.amount + action.payload };
+    }
+
     return state;
 }
 
-const store = createStore(reducer);
 
 const history = [];
 
 // NOTE 1 - Subscribe to state changes BEFORE dispatching any actions
 store.subscribe(() => {
     console.log("sus : ", store.getState());
-    console.log(history)
+    // console.log(history)
     
 });
 
 
 // Dispatch actions
 setInterval(() => {
-    store.dispatch({ type: 'increment' });
+    store.dispatch({ type: 'incByAmt', payload:10 });
     history.push(store.getState())
-}, 1000)
+}, 3000)
 
 
 
