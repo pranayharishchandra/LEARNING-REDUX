@@ -1,21 +1,34 @@
-import { createStore } from 'redux'
+import { createStore } from 'redux';
 
-const store = createStore(reducer_)
+// reducer
+function reducer(state = { amount: 1 }, action) {
+    if (action.type === 'increment') {
+        // NOTE 2 - wrong practice state's copy shoud me made
+        // state.amount = state.amount + 1; 
 
-// reducer_
-function reducer_(state_ = {amount:1}, action_) {
-    // action_ just a convention
-     if (action_.type === 'increment') {
-        return {amount:state_.amount+1}
-     }
-    return state_
+        // it should bd immutable like below
+        return { amount: state.amount + 1 };
+    }
+    return state;
 }
 
+const store = createStore(reducer);
 
-// global state -- to check the state
-console.log(store.getState())
-console.log("store")
+const history = [];
 
-store.dispatch({type:'increment'})
+// NOTE 1 - Subscribe to state changes BEFORE dispatching any actions
+store.subscribe(() => {
+    console.log("sus : ", store.getState());
+    console.log(history)
+    
+});
 
-console.log(store.getState())
+
+// Dispatch actions
+setInterval(() => {
+    store.dispatch({ type: 'increment' });
+    history.push(store.getState())
+}, 1000)
+
+
+
