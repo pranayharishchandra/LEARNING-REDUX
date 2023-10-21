@@ -1,44 +1,46 @@
 import { createStore, applyMiddleware } from 'redux';
 import logger from 'redux-logger'; // npm i redux-logger
 
-// .default to avoid error
-const store = createStore(reducer, applyMiddleware(logger.default));
+// Action name constants
+const INCREMENT = 'INCREMENT';
+const DECREMENT = 'DECREMENT';
+const INCREMENT_BY_AMOUNT = 'INCREMENT_BY_AMOUNT';
 
-// reducer - with some inital state
-function reducer(state = { amount: 1 }, action) {
-    if (action.type === 'inc') {
-        // NOTE 2 - wrong practice state's copy shoud me made
-        // state.amount = state.amount + 1; 
-
-        // it should bd immutable like below
-        return { amount: state.amount + 1 };
-    }
-    else if (action.type === 'dec') {
-        return { amount: state.amount - 1 };
-    }
-    else if (action.type === 'incByAmt') {
-        return { amount: state.amount + action.payload };
-    }
-
-    return state;
+// Action creators
+function increment() {
+    return { type: INCREMENT };
 }
 
+function decrement() {
+    return { type: DECREMENT };
+}
 
-const history = [];
+function incrementByAmount(value) {
+    return { type: INCREMENT_BY_AMOUNT, payload: value };
+}
 
-// NOTE 1 - Subscribe to state changes BEFORE dispatching any actions
+// Reducer - with initial state
+function reducer(state = { amount: 1 }, action) {
+    switch (action.type) {
+        case INCREMENT:
+            return { amount: state.amount + 1 };
+        case DECREMENT:
+            return { amount: state.amount - 1 };
+        case INCREMENT_BY_AMOUNT:
+            return { amount: state.amount + action.payload };
+        default:
+            return state;
+    }
+}
+
+const store = createStore(reducer, applyMiddleware(logger.default));
+
+// Subscribe to state changes BEFORE dispatching any actions
 store.subscribe(() => {
     console.log("sus : ", store.getState());
-    // console.log(history)
-    
 });
-
 
 // Dispatch actions
 setInterval(() => {
-    store.dispatch({ type: 'incByAmt', payload:10 });
-    history.push(store.getState())
-}, 3000)
-
-
-
+    store.dispatch(incrementByAmount(10));
+}, 3000);
